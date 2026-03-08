@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Mutual NDA",
+    "description": "Standard Mutual Non-Disclosure Agreement for protecting confidential information between two parties",
+    "filename": "Mutual-NDA.md"
+  },
+  {
+    "name": "Mutual NDA Cover Page",
+    "description": "Cover page template for the Mutual Non-Disclosure Agreement",
+    "filename": "Mutual-NDA-coverpage.md"
+  },
+  {
+    "name": "Cloud Service Agreement (CSA)",
+    "description": "Standard agreement for cloud service providers and customers",
+    "filename": "CSA.md"
+  },
+  {
+    "name": "Service Level Agreement (SLA)",
+    "description": "Defines service availability targets and remedies for cloud services",
+    "filename": "sla.md"
+  },
+  {
+    "name": "Data Processing Agreement (DPA)",
+    "description": "Agreement governing the processing of personal data in compliance with GDPR",
+    "filename": "DPA.md"
+  },
+  {
+    "name": "Business Associate Agreement (BAA)",
+    "description": "HIPAA-compliant agreement for handling protected health information (PHI)",
+    "filename": "BAA.md"
+  }
+]
