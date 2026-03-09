@@ -47,12 +47,15 @@ export default function NDAClient() {
   };
 
   const handleGenerate = () => {
+    console.log('Form data:', formData);
+    console.log('Form valid:', isFormValid());
     if (isFormValid()) {
       setShowDocument(true);
-      // Scroll to document after rendering
       setTimeout(() => {
         document.getElementById('nda-document')?.scrollIntoView({ behavior: 'smooth' });
       }, 100);
+    } else {
+      alert('Please fill in all required fields');
     }
   };
 
