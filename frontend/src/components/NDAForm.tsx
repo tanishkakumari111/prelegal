@@ -5,13 +5,17 @@ import React from 'react';
 export interface NDAData {
   partyAName: string;
   partyAAddress: string;
+  partyANoticeAddress: string;
   partyBName: string;
   partyBAddress: string;
+  partyBNoticeAddress: string;
   date: string;
   effectiveDate: string;
   purpose: string;
+  governingLaw: string;
   jurisdiction: string;
-  state: string;
+  mndTerm: string;
+  confidentialityTerm: string;
 }
 
 interface NDAFormProps {
@@ -27,12 +31,12 @@ export default function NDAForm({ data, onChange }: NDAFormProps) {
   return (
     <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
       <h2 className="text-xl font-semibold mb-4 text-gray-800">Mutual NDA Information</h2>
-      <p className="text-sm text-gray-500 mb-6">Fill in the details below to generate your Mutual Non-Disclosure Agreement.</p>
+      <p className="text-sm text-gray-500 mb-6">Fill in the details below to generate your Mutual Non-Disclosure Agreement based on CommonPaper template.</p>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Party A Information */}
         <div className="md:col-span-2">
-          <h3 className="text-lg font-medium text-gray-700 mb-3 border-b pb-2">Party A (Disclosing Party)</h3>
+          <h3 className="text-lg font-medium text-gray-700 mb-3 border-b pb-2">Party A</h3>
         </div>
         
         <div>
@@ -52,7 +56,7 @@ export default function NDAForm({ data, onChange }: NDAFormProps) {
         
         <div>
           <label htmlFor="partyAAddress" className="block text-sm font-medium text-gray-700 mb-1">
-            Address *
+            Principal Address *
           </label>
           <input
             type="text"
@@ -65,9 +69,24 @@ export default function NDAForm({ data, onChange }: NDAFormProps) {
           />
         </div>
 
+        <div className="md:col-span-2">
+          <label htmlFor="partyANoticeAddress" className="block text-sm font-medium text-gray-700 mb-1">
+            Notice Address (for legal notices) *
+          </label>
+          <input
+            type="text"
+            id="partyANoticeAddress"
+            value={data.partyANoticeAddress}
+            onChange={(e) => handleChange('partyANoticeAddress', e.target.value)}
+            required
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="notice@abccorp.com or 123 Business St, Suite 100, City, State 12345"
+          />
+        </div>
+
         {/* Party B Information */}
         <div className="md:col-span-2">
-          <h3 className="text-lg font-medium text-gray-700 mb-3 border-b pb-2 mt-4">Party B (Receiving Party)</h3>
+          <h3 className="text-lg font-medium text-gray-700 mb-3 border-b pb-2 mt-4">Party B</h3>
         </div>
         
         <div>
@@ -87,7 +106,7 @@ export default function NDAForm({ data, onChange }: NDAFormProps) {
         
         <div>
           <label htmlFor="partyBAddress" className="block text-sm font-medium text-gray-700 mb-1">
-            Address *
+            Principal Address *
           </label>
           <input
             type="text"
@@ -97,6 +116,21 @@ export default function NDAForm({ data, onChange }: NDAFormProps) {
             required
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="456 Corporate Ave, City, State 67890"
+          />
+        </div>
+
+        <div className="md:col-span-2">
+          <label htmlFor="partyBNoticeAddress" className="block text-sm font-medium text-gray-700 mb-1">
+            Notice Address (for legal notices) *
+          </label>
+          <input
+            type="text"
+            id="partyBNoticeAddress"
+            value={data.partyBNoticeAddress}
+            onChange={(e) => handleChange('partyBNoticeAddress', e.target.value)}
+            required
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="notice@xyzindustries.com or 456 Corporate Ave, City, State 67890"
           />
         </div>
 
@@ -133,9 +167,9 @@ export default function NDAForm({ data, onChange }: NDAFormProps) {
           />
         </div>
 
-        {/* Purpose and Jurisdiction */}
+        {/* Purpose */}
         <div className="md:col-span-2">
-          <h3 className="text-lg font-medium text-gray-700 mb-3 border-b pb-2 mt-4">Additional Details</h3>
+          <h3 className="text-lg font-medium text-gray-700 mb-3 border-b pb-2 mt-4">Purpose</h3>
         </div>
         
         <div className="md:col-span-2">
@@ -152,10 +186,71 @@ export default function NDAForm({ data, onChange }: NDAFormProps) {
             placeholder="Describe the business purpose for which the confidential information will be shared..."
           />
         </div>
+
+        {/* Term */}
+        <div className="md:col-span-2">
+          <h3 className="text-lg font-medium text-gray-700 mb-3 border-b pb-2 mt-4">Agreement Term</h3>
+        </div>
+        
+        <div>
+          <label htmlFor="mndTerm" className="block text-sm font-medium text-gray-700 mb-1">
+            MNDA Term *
+          </label>
+          <select
+            id="mndTerm"
+            value={data.mndTerm}
+            onChange={(e) => handleChange('mndTerm', e.target.value)}
+            required
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="1year">Expires 1 year from Effective Date</option>
+            <option value="2years">Expires 2 years from Effective Date</option>
+            <option value="3years">Expires 3 years from Effective Date</option>
+            <option value="perpetual">Continues until terminated</option>
+          </select>
+        </div>
+        
+        <div>
+          <label htmlFor="confidentialityTerm" className="block text-sm font-medium text-gray-700 mb-1">
+            Term of Confidentiality *
+          </label>
+          <select
+            id="confidentialityTerm"
+            value={data.confidentialityTerm}
+            onChange={(e) => handleChange('confidentialityTerm', e.target.value)}
+            required
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="1year">1 year from Effective Date</option>
+            <option value="2years">2 years from Effective Date</option>
+            <option value="3years">3 years from Effective Date</option>
+            <option value="perpetual">In perpetuity (for trade secrets)</option>
+          </select>
+        </div>
+
+        {/* Governing Law & Jurisdiction */}
+        <div className="md:col-span-2">
+          <h3 className="text-lg font-medium text-gray-700 mb-3 border-b pb-2 mt-4">Governing Law & Jurisdiction</h3>
+        </div>
+        
+        <div>
+          <label htmlFor="governingLaw" className="block text-sm font-medium text-gray-700 mb-1">
+            Governing Law (State) *
+          </label>
+          <input
+            type="text"
+            id="governingLaw"
+            value={data.governingLaw}
+            onChange={(e) => handleChange('governingLaw', e.target.value)}
+            required
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="Delaware"
+          />
+        </div>
         
         <div>
           <label htmlFor="jurisdiction" className="block text-sm font-medium text-gray-700 mb-1">
-            Jurisdiction/State *
+            Jurisdiction (Courts) *
           </label>
           <input
             type="text"
@@ -164,22 +259,7 @@ export default function NDAForm({ data, onChange }: NDAFormProps) {
             onChange={(e) => handleChange('jurisdiction', e.target.value)}
             required
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="California"
-          />
-        </div>
-        
-        <div>
-          <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-1">
-            Governing State *
-          </label>
-          <input
-            type="text"
-            id="state"
-            value={data.state}
-            onChange={(e) => handleChange('state', e.target.value)}
-            required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="Delaware"
+            placeholder="courts located in New Castle, DE"
           />
         </div>
       </div>

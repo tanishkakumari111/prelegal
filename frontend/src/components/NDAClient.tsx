@@ -11,13 +11,17 @@ const NDADocument = dynamic(() => import('./NDADocument'), { ssr: false });
 const defaultNDAData: NDAData = {
   partyAName: '',
   partyAAddress: '',
+  partyANoticeAddress: '',
   partyBName: '',
   partyBAddress: '',
+  partyBNoticeAddress: '',
   date: '',
   effectiveDate: '',
   purpose: '',
+  governingLaw: '',
   jurisdiction: '',
-  state: '',
+  mndTerm: '1year',
+  confidentialityTerm: '1year',
 };
 
 export default function NDAClient() {
@@ -30,13 +34,15 @@ export default function NDAClient() {
     return (
       formData.partyAName.trim() !== '' &&
       formData.partyAAddress.trim() !== '' &&
+      formData.partyANoticeAddress.trim() !== '' &&
       formData.partyBName.trim() !== '' &&
       formData.partyBAddress.trim() !== '' &&
+      formData.partyBNoticeAddress.trim() !== '' &&
       formData.date.trim() !== '' &&
       formData.effectiveDate.trim() !== '' &&
       formData.purpose.trim() !== '' &&
-      formData.jurisdiction.trim() !== '' &&
-      formData.state.trim() !== ''
+      formData.governingLaw.trim() !== '' &&
+      formData.jurisdiction.trim() !== ''
     );
   };
 
