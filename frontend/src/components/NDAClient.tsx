@@ -65,23 +65,45 @@ export default function NDAClient() {
     setIsGenerating(true);
 
     try {
-      const html2pdf = (await import('html2pdf.js')).default;
-
       const element = documentRef.current;
       
-      const opt = {
-        margin: 0.5,
-        filename: `Mutual_NDA_${formData.partyAName.replace(/\s+/g, '_')}_${formData.partyBName.replace(/\s+/g, '_')}.pdf`,
-        image: { type: 'png', quality: 0.98 },
-        html2canvas: { 
-          scale: 2, 
-          useCORS: true,
-          logging: false
-        },
-        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-      };
-
-      await html2pdf().set(opt).from(element).save();
+      // Clone the element to modify it for printing
+      const clone = element.cloneNode(true) as HTMLElement;
+      clone.style.position = 'absolute';
+      clone.style.left = '-9999px';
+      clone.style.width = '8.5in';
+      clone.style.padding = '0.5in';
+      clone.style.backgroundColor = '#ffffff';
+      clone.style.color = '#000000';
+      
+      document.body.appendChild(clone);
+      
+      // Use window.print() which is more reliable
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(`
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>Mutual NDA - ${data.partyAName || 'Party A'} and ${data.partyBName || 'Party B'}</title>
+            <style>
+              body { font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.5; color: #000000; }
+              @media print { body { margin: 0; } }
+            </style>
+          </head>
+          <body>
+            ${clone.innerHTML}
+          </body>
+          </html>
+        `);
+        printWindow.document.close();
+        printWindow.focus();
+        setTimeout(() => {
+          printWindow.print();
+        }, 250);
+      }
+      
+      document.body.removeChild(clone);
     } catch (error) {
       console.error('Error generating PDF:', error);
       alert('Error generating PDF. Please try again.');
