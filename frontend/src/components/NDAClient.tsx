@@ -57,21 +57,28 @@ export default function NDAClient() {
   };
 
   const handleDownload = async () => {
-    if (!documentRef.current) return;
+    if (!documentRef.current) {
+      console.error('Document ref is null');
+      return;
+    }
 
     setIsGenerating(true);
 
     try {
-      // Dynamically import html2pdf.js
       const html2pdf = (await import('html2pdf.js')).default;
 
       const element = documentRef.current;
+      
       const opt = {
         margin: 0.5,
         filename: `Mutual_NDA_${formData.partyAName.replace(/\s+/g, '_')}_${formData.partyBName.replace(/\s+/g, '_')}.pdf`,
-        image: { type: 'jpeg' as const, quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'in' as const, format: 'letter' as const, orientation: 'portrait' as const }
+        image: { type: 'png', quality: 0.98 },
+        html2canvas: { 
+          scale: 2, 
+          useCORS: true,
+          logging: false
+        },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
       };
 
       await html2pdf().set(opt).from(element).save();
