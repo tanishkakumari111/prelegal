@@ -65,35 +65,73 @@ export default function NDAClient() {
     setIsGenerating(true);
 
     try {
-      const html2pdf = (await import('html2pdf.js')).default;
-      const element = documentRef.current;
-
-      // Clone the element to avoid any display issues
-      const clone = element.cloneNode(true) as HTMLElement;
-      clone.style.width = '8.5in';
-      clone.style.position = 'absolute';
-      clone.style.top = '0';
-      clone.style.left = '-9999px';
-      clone.style.backgroundColor = '#ffffff';
-      document.body.appendChild(clone);
-
-      const opt = {
-        margin: 0.5,
-        filename: `Mutual_NDA_${formData.partyAName.replace(/\s+/g, '_') || 'PartyA'}_${formData.partyBName.replace(/\s+/g, '_') || 'PartyB'}.pdf`,
-        image: { type: 'jpeg', quality: 1.0 },
-        html2canvas: { 
-          scale: 2, 
-          useCORS: true,
-          letterRendering: true,
-          logging: false
-        },
-        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
-        pagebreak: { mode: 'avoid-all' }
-      };
-
-      await html2pdf().set(opt).from(clone).save();
+      // Import jspdf directly
+      const { jsPDF } = await import('jspdf');
       
-      document.body.removeChild(clone);
+      const element = documentRef.current;
+      
+      // Get the content as HTML
+      const html = element.innerHTML;
+      
+      // Create a simple PDF
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'in',
+        format: 'letter'
+      });
+      
+      // Add title
+      pdf.setFontSize(14);
+      pdf.setFont('times', 'bold');
+      pdf.text('MUTUAL NON-DISCLOSURE AGREEMENT', 1, 1, { align: 'center' });
+      
+      pdf.setFontSize(10);
+      pdf.setFont('times', 'normal');
+      
+      // Add content
+      let yPos = 1.5;
+      const leftMargin = 0.5;
+      const maxWidth = 7.5;
+      
+      const addText = (text: string, bold = false) => {
+        if (bold) {
+          pdf.setFont('times', 'bold');
+        } else {
+          pdf.setFont('times', 'normal');
+        }
+        
+        const lines = pdf.splitTextToSize(text, maxWidth);
+        lines.forEach((line: string) => {
+          if (yPos > 10) {
+            pdf.addPage();
+            yPos = 0.5;
+          }
+          pdf.text(line, leftMargin, yPos);
+          yPos += 0.2;
+        });
+      };
+      
+      addText(`This Mutual Non-Disclosure Agreement ("MNDA") is entered into as of ${formData.date || '[DATE]'} (the "Effective Date"), by and between:`, true);
+      addText(`${formData.partyAName || '[PARTY A NAME]'} ("Party A"), with its principal place of business at ${formData.partyAAddress || '[ADDRESS]'};`);
+      addText(`and`);
+      addText(`${formData.partyBName || '[PARTY B NAME]'} ("Party B"), with its principal place of business at ${formData.partyBAddress || '[ADDRESS]'}.`);
+      addText('');
+      addText(`PURPOSE: ${formData.purpose || '[PURPOSE]'}`, true);
+      addText('');
+      addText('1. CONFIDENTIAL INFORMATION', true);
+      addText('"Confidential Information" means any information disclosed by either party that is marked as confidential or would reasonably be understood to be confidential.');
+      addText('');
+      addText('2. OBLIGATIONS', true);
+      addText('The Receiving Party shall: (a) hold all Confidential Information in strict confidence; (b) use the Confidential Information solely for the Purpose; (c) protect the Confidential Information using at least reasonable care; and (d) limit access to those who have a need to know and are bound by confidentiality obligations.');
+      addText('');
+      addText('3. TERM', true);
+      addText(`This Agreement shall commence on the Effective Date and shall continue for ${formData.mndTerm === '1year' ? '1 year' : formData.mndTerm === '2years' ? '2 years' : formData.mndTerm === '3years' ? '3 years' : 'until terminated'}.`);
+      addText('');
+      addText('4. GOVERNING LAW', true);
+      addText(`This Agreement shall be governed by the laws of the State of ${formData.governingLaw || '[STATE]'}.`);
+      
+      const filename = `Mutual_NDA_${formData.partyAName.replace(/\s+/g, '_') || 'PartyA'}_${formData.partyBName.replace(/\s+/g, '_') || 'PartyB'}.pdf`;
+      pdf.save(filename);
     } catch (error) {
       console.error('Error generating PDF:', error);
       alert('Error generating PDF. Please try again.');
