@@ -66,9 +66,8 @@ export default function NDAClient() {
     setIsGenerating(true);
 
     try {
+      // Import jspdf directly
       const { jsPDF } = await import('jspdf');
-      
-      const element = documentRef.current;
       
       const formatDate = (dateString: string) => {
         if (!dateString) return '______';
@@ -100,6 +99,7 @@ export default function NDAClient() {
         }
       };
       
+      // Create a simple PDF
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'in',
