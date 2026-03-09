@@ -65,38 +65,26 @@ export default function NDAClient() {
     setIsGenerating(true);
 
     try {
-      const { jsPDF } = await import('jspdf');
-      const html2canvas = (await import('html2canvas')).default;
+      const html2pdf = (await import('html2pdf.js')).default;
 
       const element = documentRef.current;
-      
-      // Create canvas from the element
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#ffffff',
+
+      const opt = {
+        margin: 0.5,
+        filename: `Mutual_NDA_${formData.partyAName.replace(/\s+/g, '_') || 'PartyA'}_${formData.partyBName.replace(/\s+/g, '_') || 'PartyB'}.pdf`,
+        image: { type: 'png', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(element).save().then(() => {
+        setIsGenerating(false);
+      }).catch((err: Error) => {
+        console.error('PDF save error:', err);
+        setIsGenerating(false);
       });
-      
-      const imgData = canvas.toDataURL('image/png');
-      
-      // Create PDF
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'in',
-        format: 'letter',
-      });
-      
-      const imgWidth = 8.5;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      
-      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-      
-      const filename = `Mutual_NDA_${formData.partyAName.replace(/\s+/g, '_') || 'PartyA'}_${formData.partyBName.replace(/\s+/g, '_') || 'PartyB'}.pdf`;
-      pdf.save(filename);
     } catch (error) {
       console.error('Error generating PDF:', error);
-      alert('Error generating PDF. Please try again.');
-    } finally {
       setIsGenerating(false);
     }
   };
