@@ -56,7 +56,7 @@ export default function NDAClient() {
     }
   };
 
-  const handleDownload = async () => {
+  const handleDownload = () => {
     if (!documentRef.current) {
       console.error('Document ref is null');
       return;
@@ -64,28 +64,76 @@ export default function NDAClient() {
 
     setIsGenerating(true);
 
-    try {
-      const html2pdf = (await import('html2pdf.js')).default;
-
-      const element = documentRef.current;
-
-      const opt = {
-        margin: 0.5,
-        filename: `Mutual_NDA_${formData.partyAName.replace(/\s+/g, '_') || 'PartyA'}_${formData.partyBName.replace(/\s+/g, '_') || 'PartyB'}.pdf`,
-        image: { type: 'png', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-      };
-
-      html2pdf().set(opt).from(element).save().then(() => {
+    const printContent = documentRef.current.innerHTML;
+    const printWindow = window.open('', '_blank');
+    
+    if (printWindow) {
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Mutual NDA</title>
+          <style>
+            * { box-sizing: border-box; }
+            body { 
+              font-family: 'Times New Roman', Times, serif; 
+              font-size: 11pt; 
+              line-height: 1.5; 
+              color: #000000; 
+              margin: 0.5in;
+              padding: 0;
+            }
+            .bg-white { background-color: #ffffff; }
+            .p-8 { padding: 2rem; }
+            .rounded-lg { border-radius: 0.5rem; }
+            .shadow-md { box-shadow: none; }
+            .border { border: 1px solid #000000; }
+            .border-black { border-color: #000000; }
+            .max-w-4xl { max-width: 56rem; }
+            .mx-auto { margin-left: auto; margin-right: auto; }
+            .mb-1 { margin-bottom: 0.25rem; }
+            .mb-2 { margin-bottom: 0.5rem; }
+            .mb-4 { margin-bottom: 1rem; }
+            .mb-6 { margin-bottom: 1.5rem; }
+            .mt-2 { margin-top: 0.5rem; }
+            .mt-4 { margin-top: 1rem; }
+            .mt-8 { margin-top: 2rem; }
+            .mt-16 { margin-top: 4rem; }
+            .ml-4 { margin-left: 1rem; }
+            .text-center { text-align: center; }
+            .text-xs { font-size: 0.75rem; }
+            .text-lg { font-size: 1.125rem; }
+            .font-bold { font-weight: bold; }
+            .underline { text-decoration: underline; }
+            .grid { display: grid; }
+            .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+            .gap-8 { gap: 2rem; }
+            .border-t { border-top-width: 1px; }
+            .border-b { border-bottom-width: 1px; }
+            .pt-2 { padding-top: 0.5rem; }
+            @media print {
+              body { margin: 0; }
+            }
+          </style>
+        </head>
+        <body>
+          <div style="background-color: #ffffff; color: #000000;">
+            ${printContent}
+          </div>
+        </body>
+        </html>
+      `);
+      
+      printWindow.document.close();
+      
+      setTimeout(() => {
+        printWindow.focus();
+        printWindow.print();
         setIsGenerating(false);
-      }).catch((err: Error) => {
-        console.error('PDF save error:', err);
-        setIsGenerating(false);
-      });
-    } catch (error) {
-      console.error('Error generating PDF:', error);
+      }, 500);
+    } else {
       setIsGenerating(false);
+      alert('Please allow popups to download the PDF');
     }
   };
 
