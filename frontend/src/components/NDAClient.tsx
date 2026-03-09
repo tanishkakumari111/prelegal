@@ -65,45 +65,34 @@ export default function NDAClient() {
     setIsGenerating(true);
 
     try {
+      const { jsPDF } = await import('jspdf');
+      const html2canvas = (await import('html2canvas')).default;
+
       const element = documentRef.current;
       
-      // Clone the element to modify it for printing
-      const clone = element.cloneNode(true) as HTMLElement;
-      clone.style.position = 'absolute';
-      clone.style.left = '-9999px';
-      clone.style.width = '8.5in';
-      clone.style.padding = '0.5in';
-      clone.style.backgroundColor = '#ffffff';
-      clone.style.color = '#000000';
+      // Create canvas from the element
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+      });
       
-      document.body.appendChild(clone);
+      const imgData = canvas.toDataURL('image/png');
       
-      // Use window.print() which is more reliable
-      const printWindow = window.open('', '_blank');
-      if (printWindow) {
-        printWindow.document.write(`
-          <!DOCTYPE html>
-          <html>
-          <head>
-            <title>Mutual NDA - ${data.partyAName || 'Party A'} and ${data.partyBName || 'Party B'}</title>
-            <style>
-              body { font-family: 'Times New Roman', serif; font-size: 11pt; line-height: 1.5; color: #000000; }
-              @media print { body { margin: 0; } }
-            </style>
-          </head>
-          <body>
-            ${clone.innerHTML}
-          </body>
-          </html>
-        `);
-        printWindow.document.close();
-        printWindow.focus();
-        setTimeout(() => {
-          printWindow.print();
-        }, 250);
-      }
+      // Create PDF
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'in',
+        format: 'letter',
+      });
       
-      document.body.removeChild(clone);
+      const imgWidth = 8.5;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      
+      const filename = `Mutual_NDA_${formData.partyAName.replace(/\s+/g, '_') || 'PartyA'}_${formData.partyBName.replace(/\s+/g, '_') || 'PartyB'}.pdf`;
+      pdf.save(filename);
     } catch (error) {
       console.error('Error generating PDF:', error);
       alert('Error generating PDF. Please try again.');
